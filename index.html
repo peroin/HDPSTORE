@@ -513,15 +513,24 @@
     function getGameIcon(gk){const g=getGame(gk);return g?'<i class="fas '+g.icon_class+'" style="color:'+g.icon_color+';"></i>':'<i class="fas fa-gamepad"></i>';}
     function needServer(gk){const g=getGame(gk);return g?(g.need_server==='true'||g.need_server===true):false;}
 
-    async function loadSheetData(){
+       async function loadSheetData(){
         if(SHEET_API_URL==='YOUR_SCRIPT_URL'){console.warn('Sheet API URL belum di-set, pakai fallback.');return null;}
         try{
-            const r=await fetch(SHEET_API_URL + '?t=' + Date.now());
-            if(!r.ok)throw new Error('HTTP '+r.status);
-            const d=await r.json();
-            console.log('Data Google Sheets berhasil dimuat.');
+            // 1. Tambahkan angka acak di URL agar Cloudflare & Browser tidak pernah cache
+            const nocache = Date.now() + '-' + Math.floor(Math.random() * 1000000);
+            const r = await fetch(SHEET_API_URL + '?r=' + nocache, {
+                method: 'GET',
+                // 2. Perintah keras ke browser untuk tidak cache
+                cache: 'no-store'
+            });
+            if(!r.ok) throw new Error('HTTP ' + r.status);
+            const d = await r.json();
+            console.log('✅ Data terbaru dimuat pada:', new Date().toLocaleTimeString());
             return d;
-        }catch(e){console.warn('Gagal muat Sheets, pakai fallback:',e.message);return null;}
+        }catch(e){
+            console.warn('❌ Gagal muat Sheets, pakai fallback:', e.message);
+            return null;
+        }
     }
 
     function applyHeroImages(){
