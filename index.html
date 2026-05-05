@@ -514,7 +514,7 @@
     function needServer(gk){const g=getGame(gk);return g?(g.need_server==='true'||g.need_server===true):false;}
 
        async function loadSheetData(){
-        if(SHEET_API_URL==='YOUR_SCRIPT_URL'){console.warn('Sheet API URL belum di-set, pakai fallback.');return null;}
+        if(SHEET_API_URL==='https://script.google.com/macros/s/AKfycbzQwB24OY8bWA-ZWHxVDcUmok2j99kq9ktEDyjG31_NIUKfewfNpDSqLtSffR2MuiZk/exec'){console.warn('Sheet API URL belum di-set, pakai fallback.');return null;}
         try{
             // 1. Tambahkan angka acak di URL agar Cloudflare & Browser tidak pernah cache
             const nocache = Date.now() + '-' + Math.floor(Math.random() * 1000000);
