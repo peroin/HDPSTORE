@@ -483,19 +483,54 @@
     function getGameIcon(gk){const g=getGame(gk);return g?'<i class="fas '+g.icon_class+'" style="color:'+g.icon_color+';"></i>':'<i class="fas fa-gamepad"></i>';}
     function needServer(gk){const g=getGame(gk);return g?(g.need_server==='true'||g.need_server===true):false;}
 
-    async function loadSheetData(){
-        if(SHEET_API_URL==='YOUR_SCRIPT_URL'){console.warn('Sheet API URL belum di-set, pakai fallback.');return null;}
-        try{
-            const nocache = Date.now() + '-' + Math.floor(Math.random() * 1000000);
-            const r = await fetch(SHEET_API_URL + '?r=' + nocache, {
-                cache: 'no-store'
-            });
-            if(!r.ok) throw new Error('HTTP ' + r.status);
-            const d = await r.json();
-            console.log('✅ Data terbaru dimuat:', new Date().toLocaleTimeString());
-            return d;
-        }catch(e){console.warn('❌ Gagal muat Sheets, pakai fallback:', e.message);return null;}
+    // PENGATURAN - ISI DI SINI
+  const API_KEY = 'MASUKKAN_API_KEY_ANDA'; 
+  const SHEET_ID = 'MASUKKAN_ID_SPREADSHEET_ANDA';
+  const RANGE = 'Sheet1!A1:C20'; // Sesuaikan nama Sheet dan rentang kolomnya
+
+  async function loadSheetData() {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+    
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!data.values) {
+        document.getElementById('tabel-data').innerHTML = "Data tidak ditemukan atau Sheet kosong.";
+        return;
+      }
+
+      let html = '<table class="min-w-full table-auto border-collapse">';
+      
+      // Membuat Header Otomatis
+      html += '<thead class="bg-gray-100"><tr>';
+      data.values[0].forEach(header => {
+        html += `<th class="px-4 py-2 border text-left text-sm font-semibold text-gray-600">${header}</th>`;
+      });
+      html += '</tr></thead><tbody>';
+
+      // Membuat Baris Data
+      for (let i = 1; i < data.values.length; i++) {
+        html += '<tr class="hover:bg-gray-50">';
+        data.values[i].forEach(cell => {
+          html += `<td class="px-4 py-2 border text-sm text-gray-700">${cell}</td>`;
+        });
+        html += '</tr>';
+      }
+      
+      html += '</tbody></table>';
+      document.getElementById('tabel-data').innerHTML = html;
+
+    } catch (error) {
+      console.error('Error:', error);
+      document.getElementById('tabel-data').innerHTML = "<span class='text-red-500'>Gagal memuat data. Periksa koneksi atau API Key.</span>";
+  
     }
+  }
+   loadSheetData();
+  // Jalankan fungsi
+  
+
 
     function applyHeroImages(){
         GAME_ORDER.forEach((gk,i)=>{
